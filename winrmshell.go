@@ -118,7 +118,6 @@ func command(hostname string ,port int,user string, pass string, https bool,cmd 
 			} else {
 				exitCode, err = client.RunWithInput(cmdString, os.Stdout, os.Stderr, os.Stdin)
 			}
-			check(err)
 
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
