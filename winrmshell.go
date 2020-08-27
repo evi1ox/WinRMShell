@@ -6,6 +6,8 @@ import (
 	_ "errors"
 	"flag"
 	"fmt"
+	"github.com/evi1ox/WinRMShell/winrmcp"
+	"log"
 	"os"
 	_ "reflect"
 	"strings"
@@ -28,6 +30,8 @@ func main() {
 		https    bool
 		insecure bool
 		timeout  string
+		src_path string
+		dst_path string
 	)
 
 	flag.StringVar(&hostname, "i", "127.0.0.1", "WinRM Host")
@@ -41,6 +45,8 @@ func main() {
 	flag.BoolVar(&insecure, "insecure", true, "Skip SSL Validation")
 	flag.StringVar(&timeout, "timeout", "0s", "Connection Timeout")
 	flag.StringVar(&cmd, "cmd", "whoami", "Run Command Exec")
+	flag.StringVar(&src_path, "src", "", "Source Address")
+	flag.StringVar(&dst_path, "dst", "", "Destination address")
 
 	flag.Parse()
 
@@ -58,6 +64,29 @@ func main() {
 	connectTimeout, err = time.ParseDuration(timeout)
 	check(err)
 
+	if src_path != "" && dst_path !=""{
+		addr := fmt.Sprintf("%s:%d", hostname,port)
+		client, err := winrmcp.New(addr, &winrmcp.Config{
+			Auth:                  winrmcp.Auth{User: user, Password: pass},
+			Https:                 https,
+			Insecure:              insecure,
+			TLSServerName:         "",
+			CACertBytes:           nil,
+			OperationTimeout:      time.Second*60,
+			MaxOperationsPerShell: 15,
+		})
+
+		if err != nil {
+			log.Fatal(err)
+		}
+		client.Copy(src_path, dst_path)
+
+	}else{
+		command(hostname,port,user,pass,https,cmd,insecure,connectTimeout,shell,ntlm)
+	}
+}
+
+func command(hostname string ,port int,user string, pass string, https bool,cmd string, insecure bool, connectTimeout time.Duration, shell bool, ntlm bool){
 	endpoint := winrm.NewEndpoint(hostname, port, https, insecure, nil, nil, nil, connectTimeout)
 
 	params := winrm.DefaultParameters
@@ -114,17 +143,3 @@ func check(err error) {
 		os.Exit(1)
 	}
 }
-
-//func IsNil(i interface{}) bool {
-//
-//	vi := reflect.ValueOf(i)
-//
-//	if vi.Kind() == reflect.Ptr {
-//
-//		return vi.IsNil()
-//
-//	}
-//
-//	return false
-//
-//}
