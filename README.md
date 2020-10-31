@@ -8,6 +8,16 @@
 -	交互式 or 半交互
 -	删除了 cert 连接方式
 -	根据 [winrmcp](github.com/packer-community/winrmcp/winrmcp) 添加了文件上传的功能, 支持上传文件或者文件夹
+-	添加了批量执行功能
+
+    - 支持ip段
+    - 当批量执行, 自动退出交互式客户端
+-	添加IP高亮
+-	显示文件上传DEBUG信息, 建议 Timeout 根据环境修改
+
+![image-20201031121337954](README.assets/image-20201031121337954.png)
+
+
 
 ![image-20200827150505519](README.assets/image-20200827150505519.png)
 
