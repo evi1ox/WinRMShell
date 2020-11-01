@@ -20,10 +20,13 @@ import (
 	"github.com/masterzen/winrm"
 	"github.com/mattn/go-isatty"
 	"github.com/gookit/color"
+	"github.com/fsnotify/fsnotify"
+	"github.com/spf13/viper"
 )
 
 func main() {
 	var (
+		filelists string
 		hostlists string
 		user     string
 		pass     string
@@ -38,9 +41,10 @@ func main() {
 		src_path string
 		dst_path string
 		err            error
+		hostlistExpand []net.IP
 		connectTimeout time.Duration
 	)
-
+	flag.StringVar(&filelists, "c", "", "Host config file.")
 	flag.StringVar(&hostlists, "i", "", "Host to be scanned, supports four formats:\n192.168.1.1\n192.168.1.1-10\n192.168.1.*\n192.168.1.0/24.")
 	flag.StringVar(&user, "u", "administrator", "WinRM Username")
 	flag.StringVar(&pass, "p", "password", "WinRM Password")
@@ -59,23 +63,58 @@ func main() {
 
 	os.Setenv("WINRMCP_DEBUG","yes")
 
-	hostsPattern := `^(([01]?\d?\d|2[0-4]\d|25[0-5])\.){3}([01]?\d?\d|2[0-4]\d|25[0-5])\/(\d{1}|[0-2]{1}\d{1}|3[0-2])$|^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[0-9]{1,2})(\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[0-9]{1,2})){3}$`
-	hostsRegexp := regexp.MustCompile(hostsPattern)
-	checkHost := hostsRegexp.MatchString(hostlists)
+	if filelists != "" {
+		configNameList := strings.Split(filelists, ".")
+		configName := strings.Join(configNameList[:len(configNameList)-1],".")
+		viper.SetConfigName(configName)     //把json文件换成yaml文件，只需要配置文件名 (不带后缀)即可
+		viper.AddConfigPath(".")           //添加配置文件所在的路径
+		err := viper.ReadInConfig()
+		if err != nil {
+			fmt.Printf("config file error: %s\n", err)
+			os.Exit(1)
+		}
 
-	hostsPattern2 := `\b(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})\-((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2}))\b`
-	hostsRegexp2 := regexp.MustCompile(hostsPattern2)
-	checkHost2 := hostsRegexp2.MatchString(hostlists)
+		viper.WatchConfig()           //监听配置变化
+		viper.OnConfigChange(func(e fsnotify.Event) {
+			fmt.Println("[+] 配置发生变更：", e.Name)
+		})
+		hostlist := viper.GetStringSlice("host")
+		user = viper.GetString("host_config.user")
+		pass = viper.GetString("host_config.password")
+		port = viper.GetInt("host_config.port")
+		ntlm = viper.GetBool("host_config.ntlm")
+		fmt.Printf("[+] 加载配置文件: %s\n", viper.ConfigFileUsed())
+		fmt.Printf("    Host: %v\n", hostlist)
+		fmt.Printf("    User: %s\n", user)
+		fmt.Printf("    Pass: %s\n", pass)
+		fmt.Printf("    Port: %d\n", port)
+		fmt.Printf("    Ntlm: %v\n", ntlm)
+		for _,ip := range hostlist{
+			parseIP := net.ParseIP(ip)
+			hostlistExpand = append(hostlistExpand, parseIP)
+		}
 
-	hostsPattern3 := `((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(\*$)`
-	hostsRegexp3 := regexp.MustCompile(hostsPattern3)
-	checkHost3 := hostsRegexp3.MatchString(hostlists)
+	}else{
+		hostsPattern := `^(([01]?\d?\d|2[0-4]\d|25[0-5])\.){3}([01]?\d?\d|2[0-4]\d|25[0-5])\/(\d{1}|[0-2]{1}\d{1}|3[0-2])$|^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[0-9]{1,2})(\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[0-9]{1,2})){3}$`
+		hostsRegexp := regexp.MustCompile(hostsPattern)
+		checkHost := hostsRegexp.MatchString(hostlists)
 
-	if hostlists == "" || (checkHost == false && checkHost2 == false && checkHost3 == false){
-		flag.Usage()
-		return
+		hostsPattern2 := `\b(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})\-((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2}))\b`
+		hostsRegexp2 := regexp.MustCompile(hostsPattern2)
+		checkHost2 := hostsRegexp2.MatchString(hostlists)
+
+		hostsPattern3 := `((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(\*$)`
+		hostsRegexp3 := regexp.MustCompile(hostsPattern3)
+		checkHost3 := hostsRegexp3.MatchString(hostlists)
+
+		if hostlists == "" || (checkHost == false && checkHost2 == false && checkHost3 == false){
+			flag.Usage()
+			return
+		}
+		hostlist, err := iprange.ParseList(hostlists)
+		check(err)
+		hostlistExpand = hostlist.Expand()
 	}
-
 
 	if encoded {
 		data, err := base64.StdEncoding.DecodeString(pass)
@@ -87,9 +126,7 @@ func main() {
 	connectTimeout, err = time.ParseDuration(timeout)
 	check(err)
 
-	hostlist, err := iprange.ParseList(hostlists)
-	check(err)
-	hostlistExpand := hostlist.Expand()
+
 	fmt.Printf("[+] 共执行指令的服务器个数: %d\n",len(hostlistExpand))
 
 	if len(hostlistExpand) != 1 {
@@ -138,7 +175,7 @@ func command(hostname string ,port int,user string, pass string, https bool,cmd 
 	params := winrm.DefaultParameters
 
 	if ntlm {
-		params.TransportDecorator = func() winrm.Transporter { return &winrm.ClientNTLM{} }
+		params.ntlmDecorator = func() winrm.Transporter { return &winrm.ClientNTLM{} }
 	}
 
 	client, err := winrm.NewClientWithParameters(endpoint, user, pass, params)
