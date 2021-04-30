@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="cb3facfc-e3e8-4c6b-a222-968fbfa94650" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/winrmshell" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/winrmshell.go" beforeDir="false" afterPath="$PROJECT_DIR$/winrmshell.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -12,7 +10,7 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="GOROOT" path="/usr/local/Cellar/go/1.15.2/libexec" />
+  <component name="GOROOT" url="file:///usr/local/Cellar/go/1.16.2/libexec" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -26,6 +24,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="go.import.settings.migrated" value="true" />
     <property name="go.sdk.automatically.set" value="true" />
@@ -38,16 +37,11 @@
       <module name="WinRMShell" />
       <working_directory value="$PROJECT_DIR$" />
       <kind value="PACKAGE" />
-      <filePath value="$PROJECT_DIR$/winrmshell.go" />
       <package value="github.com/evi1ox/WinRMShell" />
       <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/winrmshell.go" />
       <method v="2" />
     </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Go Build.go build github.com/evi1ox/WinRMShell" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">
@@ -55,23 +49,5 @@
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
-  </component>
-  <component name="WindowStateProjectService">
-    <state width="1638" height="247" key="GridCell.Tab.0.bottom" timestamp="1604237088972">
-      <screen x="1680" y="23" width="1920" height="975" />
-    </state>
-    <state width="1638" height="247" key="GridCell.Tab.0.bottom/1680.23.1920.975/0.23.1680.1027@1680.23.1920.975" timestamp="1604237088972" />
-    <state width="1638" height="247" key="GridCell.Tab.0.center" timestamp="1604237088972">
-      <screen x="1680" y="23" width="1920" height="975" />
-    </state>
-    <state width="1638" height="247" key="GridCell.Tab.0.center/1680.23.1920.975/0.23.1680.1027@1680.23.1920.975" timestamp="1604237088972" />
-    <state width="1638" height="247" key="GridCell.Tab.0.left" timestamp="1604237088971">
-      <screen x="1680" y="23" width="1920" height="975" />
-    </state>
-    <state width="1638" height="247" key="GridCell.Tab.0.left/1680.23.1920.975/0.23.1680.1027@1680.23.1920.975" timestamp="1604237088971" />
-    <state width="1638" height="247" key="GridCell.Tab.0.right" timestamp="1604237088972">
-      <screen x="1680" y="23" width="1920" height="975" />
-    </state>
-    <state width="1638" height="247" key="GridCell.Tab.0.right/1680.23.1920.975/0.23.1680.1027@1680.23.1920.975" timestamp="1604237088972" />
   </component>
 </project>

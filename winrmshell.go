@@ -17,10 +17,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fsnotify/fsnotify"
+	"github.com/gookit/color"
 	"github.com/masterzen/winrm"
 	"github.com/mattn/go-isatty"
-	"github.com/gookit/color"
-	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 )
 
@@ -175,7 +175,7 @@ func command(hostname string ,port int,user string, pass string, https bool,cmd 
 	params := winrm.DefaultParameters
 
 	if ntlm {
-		params.ntlmDecorator = func() winrm.Transporter { return &winrm.ClientNTLM{} }
+		params.TransportDecorator = func() winrm.Transporter { return &winrm.ClientNTLM{} }
 	}
 
 	client, err := winrm.NewClientWithParameters(endpoint, user, pass, params)
